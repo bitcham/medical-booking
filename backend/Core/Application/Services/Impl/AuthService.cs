@@ -11,4 +11,11 @@ public class AuthService(IUserService userService): IAuthService
 
         return savedUser;
     }
+
+    public Task<UserResponse> Login(LoginRequest request)
+    {
+        var validUser = userService.Login(request);
+        
+        return validUser;
+    }
 }

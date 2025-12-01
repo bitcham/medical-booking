@@ -1,4 +1,4 @@
-﻿namespace Core.Exceptions;
+﻿namespace Core.Application.Exceptions;
 
 public class DuplicateEmailException : Exception
 {

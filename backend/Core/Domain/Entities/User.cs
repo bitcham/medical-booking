@@ -1,3 +1,5 @@
+using Core.Application.Services;
+
 namespace Core.Domain.Entities;
 
 public class User : BaseEntity
@@ -20,6 +22,11 @@ public class User : BaseEntity
             PasswordHash = passwordHash,
             Username = username
         };
+    }
+    
+    public bool VerifyPassword(string passwordHash, IPasswordHasher passwordHasher)
+    {
+        return passwordHasher.Verify(passwordHash, PasswordHash);
     }
     
     

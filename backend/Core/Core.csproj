@@ -8,10 +8,13 @@
 
     <ItemGroup>
       <Folder Include="Application\Dtos\" />
+      <Folder Include="Application\Validators\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+      <PackageReference Include="FluentValidation" Version="12.1.0" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     </ItemGroup>
 

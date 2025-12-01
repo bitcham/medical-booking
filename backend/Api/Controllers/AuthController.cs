@@ -19,6 +19,13 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         return Created("", result);
     }
 
-   
+    [HttpPost(ApiEndpoints.Auth.Login)]
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserResponse>> Login(LoginRequest request)
+    {
+        var result = await authService.Login(request);
+        
+        return Ok(result);
+    }
     
 }

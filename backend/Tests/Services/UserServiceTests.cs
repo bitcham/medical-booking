@@ -1,8 +1,9 @@
 using Core.Application.Dtos.Requests;
+using Core.Application.Exceptions;
 using Core.Application.Repositories.Contracts;
+using Core.Application.Services;
 using Core.Application.Services.Impl;
 using Core.Domain.Entities;
-using Core.Exceptions;
 using Moq;
 using Xunit;
 
@@ -16,7 +17,7 @@ public class UserServiceTests
     public UserServiceTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
-        _userService = new UserService(_userRepositoryMock.Object);
+        _userService = new UserService(_userRepositoryMock.Object, new SimplePasswordHasher());
     }
 
     [Fact]
@@ -66,5 +67,18 @@ public class UserServiceTests
         await Assert.ThrowsAsync<DuplicateEmailException>(() => _userService.Register(request));
 
         _userRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<User>()), Times.Never);
+    }
+}
+
+public class SimplePasswordHasher : IPasswordHasher
+{
+    public string Hash(string password)
+    {
+        return password + "_hashed";
+    }
+
+    public bool Verify(string password, string hashedPassword)
+    {
+        return Hash(password) == hashedPassword;
     }
 }
