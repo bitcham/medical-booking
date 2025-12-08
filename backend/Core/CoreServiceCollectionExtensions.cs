@@ -18,7 +18,8 @@ public static class CoreServiceCollectionExtensions
         services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserRequestValidator>();
         services.AddScoped<IValidator<RegisterPatientRequest>, RegisterPatientRequestValidator>();
         services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
-        
+        services.AddScoped<IClinicianService, ClinicianService>();
+        services.AddScoped<IValidator<RegisterClinicianRequest>, RegisterClinicianRequestValidator>();
         
         return services;
     }

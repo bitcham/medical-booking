@@ -49,6 +49,24 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         );
     }
 
+    [HttpPost(ApiEndpoints.Auth.RegisterClinician)]
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status201Created)]
+    public async Task<ActionResult<AuthResponse>> RegisterClinician(RegisterClinicianRequest request, CancellationToken cancellationToken)
+    {
+        var result = await authService.RegisterClinician(request, cancellationToken);
+        
+        SetRefreshTokenCookie(result.RefreshToken);
+        
+        var response = result with { RefreshToken = string.Empty };
+        
+        return CreatedAtAction(
+            actionName: nameof(UserController.GetUserById), 
+            controllerName: "User", 
+            routeValues: new { id = result.User.Id, version = "1.0" },
+            value: response
+        );
+    }
+
     [HttpPost(ApiEndpoints.Auth.Login)]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request, CancellationToken cancellationToken)

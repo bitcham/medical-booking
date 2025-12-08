@@ -16,6 +16,7 @@ public static class InfraServiceCollectionExtension
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IClinicianRepository, ClinicianRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         

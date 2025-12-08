@@ -11,6 +11,7 @@ namespace Core.Application.Services.Impl;
 public class AuthService(
     IUserService userService, 
     IPatientService patientService,
+    IClinicianService clinicianService,
     IJwtTokenGenerator jwtTokenGenerator, 
     IRefreshTokenRepository refreshTokenRepository, 
     IOptions<JwtOptions> jwtOptions,
@@ -56,6 +57,26 @@ public class AuthService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new AuthResponse(savedPatient.User, token, refreshTokenString);
+    }
+
+    public async Task<AuthResponse> RegisterClinician(RegisterClinicianRequest request, CancellationToken cancellationToken = default)
+    {
+        var savedClinician = await clinicianService.Register(request, cancellationToken);
+        
+        var token = jwtTokenGenerator.GenerateToken(savedClinician.User.Id, savedClinician.User.Email);
+        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(savedClinician.User.Id, savedClinician.User.Email);
+
+        var refreshToken = new RefreshToken
+        {
+            Token = refreshTokenString,
+            UserId = savedClinician.User.Id,
+            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
+        };
+
+        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new AuthResponse(savedClinician.User, token, refreshTokenString);
     }
 
     public async Task<AuthResponse> Login(LoginRequest request, CancellationToken cancellationToken = default)
