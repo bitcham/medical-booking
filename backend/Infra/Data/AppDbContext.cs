@@ -19,20 +19,36 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.ApplyConfiguration(new RefreshTokenMapping());
         modelBuilder.ApplyConfiguration(new PatientMapping());
         modelBuilder.ApplyConfiguration(new ClinicianMapping());
+
+        modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Patient>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Clinician>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker.Entries<BaseEntity>()
-            .Where(e => e.State is EntityState.Modified or EntityState.Added);
+        var now = DateTimeOffset.UtcNow;
+        var entries = ChangeTracker.Entries<BaseEntity>();
 
         foreach (var entry in entries)
         {
-            entry.Entity.UpdatedAt = DateTimeOffset.UtcNow;
-
-            if (entry.State == EntityState.Added)
+            switch (entry.State)
             {
-                entry.Entity.CreatedAt = DateTimeOffset.UtcNow;
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = now;
+                    entry.Entity.UpdatedAt = now;
+                    entry.Entity.IsDeleted = false;
+                    break;
+                case EntityState.Modified:
+                    entry.Entity.UpdatedAt = now;
+                    break;
+                case EntityState.Deleted:
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAt = now;
+                    entry.Entity.UpdatedAt = now;
+                    break;
             }
         }
 

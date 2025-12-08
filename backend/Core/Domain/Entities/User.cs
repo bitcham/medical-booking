@@ -9,7 +9,8 @@ public class User : BaseEntity
     public required string Email { get; set; } = string.Empty;
     public required string PasswordHash { get; set; } = string.Empty;
     
-    public required string Username { get; set; } = string.Empty;
+    public required string FirstName { get; set; } = string.Empty;
+    public required string LastName { get; set; } = string.Empty;
     
     public UserRole Role { get; set; } = UserRole.FrontDesk;
 
@@ -17,13 +18,14 @@ public class User : BaseEntity
     {
     }
     
-    public static User Register(string email, string passwordHash, string username)
+    public static User Register(string email, string passwordHash, string firstName, string lastName)
     {
          return new User
         {
             Email = email,
             PasswordHash = passwordHash,
-            Username = username
+            FirstName = firstName,
+            LastName = lastName
         };
     }
     
@@ -32,9 +34,10 @@ public class User : BaseEntity
         return passwordHasher.Verify(passwordHash, PasswordHash);
     }
     
-    public void UpdateUsername(string username)
+    public void UpdateName(string firstName, string lastName)
     {
-        Username = username;
+        FirstName = firstName;
+        LastName = lastName;
     }
     
     public void ChangePassword(string newPasswordHash)

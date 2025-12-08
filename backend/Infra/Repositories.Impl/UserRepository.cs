@@ -16,12 +16,11 @@ public class UserRepository(AppDbContext dbContext) : IUserRepository
     public async Task<User> AddAsync(User user, CancellationToken cancellationToken = default)
     {
         await dbContext.Users.AddAsync(user, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
         return user;
     }
 
-    public async Task<User?> GetByIdAsync(Guid id)
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Users.FindAsync(id);
+        return await dbContext.Users.FindAsync(id, cancellationToken);
     }
 }

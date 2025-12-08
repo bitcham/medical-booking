@@ -8,7 +8,13 @@ using Microsoft.Extensions.Options;
 
 namespace Core.Application.Services.Impl;
 
-public class AuthService(IUserService userService, IJwtTokenGenerator jwtTokenGenerator, IRefreshTokenRepository refreshTokenRepository, IOptions<JwtOptions> jwtOptions): IAuthService
+public class AuthService(
+    IUserService userService, 
+    IPatientService patientService,
+    IJwtTokenGenerator jwtTokenGenerator, 
+    IRefreshTokenRepository refreshTokenRepository, 
+    IOptions<JwtOptions> jwtOptions,
+    IUnitOfWork unitOfWork): IAuthService
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
@@ -27,8 +33,29 @@ public class AuthService(IUserService userService, IJwtTokenGenerator jwtTokenGe
         };
 
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new AuthResponse(savedUser, token, refreshTokenString);
+    }
+
+    public async Task<AuthResponse> RegisterPatient(RegisterPatientRequest request, CancellationToken cancellationToken = default)
+    {
+        var savedPatient = await patientService.Register(request, cancellationToken);
+        
+        var token = jwtTokenGenerator.GenerateToken(savedPatient.User.Id, savedPatient.User.Email);
+        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(savedPatient.User.Id, savedPatient.User.Email);
+
+        var refreshToken = new RefreshToken
+        {
+            Token = refreshTokenString,
+            UserId = savedPatient.User.Id,
+            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
+        };
+
+        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new AuthResponse(savedPatient.User, token, refreshTokenString);
     }
 
     public async Task<AuthResponse> Login(LoginRequest request, CancellationToken cancellationToken = default)
@@ -46,6 +73,7 @@ public class AuthService(IUserService userService, IJwtTokenGenerator jwtTokenGe
         };
         
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         
         return new AuthResponse(validUser, token, refreshTokenString);
     }
@@ -73,6 +101,7 @@ public class AuthService(IUserService userService, IJwtTokenGenerator jwtTokenGe
         };
         
         await refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         
         return new AuthResponse(user, newJwtToken, newRefreshTokenString);
     }

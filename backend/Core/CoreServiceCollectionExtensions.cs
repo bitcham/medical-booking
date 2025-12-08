@@ -1,4 +1,5 @@
-﻿using Core.Application.Services;
+﻿using Core.Application.Dtos.Requests;
+using Core.Application.Services;
 using Core.Application.Services.Impl;
 using Core.Application.Validators;
 using FluentValidation;
@@ -13,8 +14,12 @@ public static class CoreServiceCollectionExtensions
     {
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
-        services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
-        services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+        services.AddScoped<IPatientService, PatientService>();
+        services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserRequestValidator>();
+        services.AddScoped<IValidator<RegisterPatientRequest>, RegisterPatientRequestValidator>();
+        services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
+        
+        
         return services;
     }
 }

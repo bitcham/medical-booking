@@ -15,8 +15,11 @@ public static class InfraServiceCollectionExtension
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        
+        services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
         
         return services;
     }

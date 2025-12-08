@@ -11,9 +11,9 @@ public class UserController(IUserService userService) : ControllerBase
     
     [HttpGet(ApiEndpoints.Users.GetUserById)]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserResponse>> GetUserById(Guid id)
+    public async Task<ActionResult<UserResponse>> GetUserById(Guid id, CancellationToken cancellationToken)
     {
-        var foundUser = await userService.GetByIdAsync(id);
+        var foundUser = await userService.GetByIdAsync(id, cancellationToken);
         return Ok(foundUser);
     }
     

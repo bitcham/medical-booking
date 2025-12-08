@@ -1,6 +1,8 @@
-﻿namespace Core.Application.Dtos.Requests;
+namespace Core.Application.Dtos.Requests;
 
 public record RegisterUserRequest(
     string Email,
     string Password,
-    string Username);
+    string FirstName,
+    string LastName
+);

@@ -6,20 +6,24 @@ using Core.Domain.Entities;
 
 namespace Core.Application.Services.Impl;
 
-public class UserService(IUserRepository userRepository, IPasswordHasher passwordHasher) : IUserService
+public class UserService(
+    IUserRepository userRepository, 
+    IPasswordHasher passwordHasher,
+    IUnitOfWork unitOfWork) : IUserService
 {
     public async Task<UserResponse> Register(RegisterUserRequest request, CancellationToken cancellationToken = default)
     {
-        if(await userRepository.GetByEmailAsync(request.Email, cancellationToken) is not null)
+        if (await userRepository.GetByEmailAsync(request.Email, cancellationToken) is not null)
         {
             throw new DuplicateEmailException();
         }
 
         var passwordHash = passwordHasher.Hash(request.Password);
         
-        var user = User.Register(request.Email, passwordHash, request.Username);
+        var user = User.Register(request.Email, passwordHash, request.FirstName, request.LastName);
 
         var savedUser = await userRepository.AddAsync(user, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return UserResponse.FromEntity(savedUser);
         
@@ -36,9 +40,9 @@ public class UserService(IUserRepository userRepository, IPasswordHasher passwor
         return passwordHasher.Verify(request.Password, user.PasswordHash) ?  UserResponse.FromEntity(user) : throw new InvalidCredentialsException("Username or password is incorrect.");
     }
 
-    public async Task<UserResponse> GetByIdAsync(Guid id)
+    public async Task<UserResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await userRepository.GetByIdAsync(id) is { } user
+        return await userRepository.GetByIdAsync(id, cancellationToken) is { } user
             ? UserResponse.FromEntity(user)
             : throw new UserNotFoundException();
     }

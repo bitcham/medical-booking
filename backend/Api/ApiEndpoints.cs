@@ -13,6 +13,8 @@ public static class ApiEndpoints
         
         public const string Register = $"{Base}/register";
         
+        public const string RegisterPatient = $"{Base}/register/patient";
+        
         public const string Login = $"{Base}/login";
         
         public const string RefreshToken = $"{Base}/refresh-token";

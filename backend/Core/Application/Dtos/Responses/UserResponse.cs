@@ -5,7 +5,8 @@ namespace Core.Application.Dtos.Responses;
 public record UserResponse(
     Guid Id,
     string Email,
-    string Username
+    string FirstName,
+    string LastName
     )
 {
     public static UserResponse FromEntity(User user)
@@ -13,7 +14,8 @@ public record UserResponse(
         return new UserResponse(
             user.Id,
             user.Email,
-            user.Username
+            user.FirstName,
+            user.LastName
         );
     }
     
