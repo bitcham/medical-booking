@@ -9,6 +9,7 @@ public class ClinicianMapping : IEntityTypeConfiguration<Clinician>
     public void Configure(EntityTypeBuilder<Clinician> builder)
     {
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
         builder.Property(x => x.LicenseNumber)
             .HasMaxLength(50)

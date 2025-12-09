@@ -5,5 +5,7 @@ namespace Core.Application.Repositories.Contracts;
 public interface IClinicianRepository
 {
     Task<Clinician> AddAsync(Clinician clinician, CancellationToken cancellationToken = default);
+    Task<Clinician?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Clinician?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Clinician>> GetAllAsync(CancellationToken cancellationToken = default);
 }

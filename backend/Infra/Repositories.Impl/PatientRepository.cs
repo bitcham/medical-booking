@@ -13,6 +13,13 @@ public class PatientRepository(AppDbContext context) : IPatientRepository
         return patient;
     }
 
+    public async Task<Patient?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.Patients
+            .Include(p => p.User)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
+
     public async Task<Patient?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await context.Patients

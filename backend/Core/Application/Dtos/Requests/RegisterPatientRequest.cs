@@ -6,7 +6,7 @@ public record RegisterPatientRequest(
     string FirstName,
     string LastName,
     string PhoneNumber,
-    DateTime DateOfBirth,
+    DateOnly DateOfBirth,
     string Street,
     string City,
     string ZipCode,

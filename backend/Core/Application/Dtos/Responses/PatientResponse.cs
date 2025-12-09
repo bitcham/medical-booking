@@ -7,7 +7,7 @@ public record PatientResponse(
     Guid Id,
     UserResponse User,
     string PhoneNumber,
-    DateTime DateOfBirth,
+    DateOnly DateOfBirth,
     Address Address
 )
 {

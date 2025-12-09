@@ -6,7 +6,8 @@ public record UserResponse(
     Guid Id,
     string Email,
     string FirstName,
-    string LastName
+    string LastName,
+    string Role
     )
 {
     public static UserResponse FromEntity(User user)
@@ -15,7 +16,8 @@ public record UserResponse(
             user.Id,
             user.Email,
             user.FirstName,
-            user.LastName
+            user.LastName,
+            user.Role.ToString()
         );
     }
     

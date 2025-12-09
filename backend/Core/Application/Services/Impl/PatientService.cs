@@ -45,4 +45,18 @@ public class PatientService(
 
         return PatientResponse.FromEntity(patient);
     }
+
+    public async Task<PatientResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var patient = await patientRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new PatientNotFoundException();
+        return PatientResponse.FromEntity(patient);
+    }
+
+    public async Task<PatientResponse> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var patient = await patientRepository.GetByUserIdAsync(userId, cancellationToken)
+            ?? throw new PatientNotFoundException();
+        return PatientResponse.FromEntity(patient);
+    }
 }

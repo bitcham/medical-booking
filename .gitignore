@@ -39,9 +39,11 @@ packages/
 .env.*
 
 # etc
-GEMINI.md
-.gemini/
+.claude
 domain.md
 plan.md
-ticket.md
 prd.md
+CLAUDE.md
+nul
+test.md
+분석.md

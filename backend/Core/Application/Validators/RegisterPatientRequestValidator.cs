@@ -29,7 +29,7 @@ public class RegisterPatientRequestValidator : AbstractValidator<RegisterPatient
 
         RuleFor(x => x.DateOfBirth)
             .NotEmpty().WithMessage("Date of birth is required.")
-            .LessThan(DateTime.UtcNow).WithMessage("Date of birth must be in the past.");
+            .LessThan(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("Date of birth must be in the past.");
         
         RuleFor(x => x.Street)
             .NotEmpty().WithMessage("Street address is required.");

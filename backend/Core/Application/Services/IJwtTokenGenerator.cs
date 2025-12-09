@@ -5,6 +5,6 @@ namespace Core.Application.Services;
 
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(Guid userId, string email);
+    string GenerateToken(Guid userId, string email, string role);
     string GenerateRefreshToken(Guid userId, string email);
 }

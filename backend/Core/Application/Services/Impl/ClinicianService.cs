@@ -43,4 +43,24 @@ public class ClinicianService(
 
         return ClinicianResponse.FromEntity(clinician);
     }
+
+    public async Task<ClinicianResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var clinician = await clinicianRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new ClinicianNotFoundException();
+        return ClinicianResponse.FromEntity(clinician);
+    }
+
+    public async Task<ClinicianResponse> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var clinician = await clinicianRepository.GetByUserIdAsync(userId, cancellationToken)
+            ?? throw new ClinicianNotFoundException();
+        return ClinicianResponse.FromEntity(clinician);
+    }
+
+    public async Task<IEnumerable<ClinicianResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var clinicians = await clinicianRepository.GetAllAsync(cancellationToken);
+        return clinicians.Select(ClinicianResponse.FromEntity);
+    }
 }

@@ -10,6 +10,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Clinician> Clinicians { get; set; }
+    public DbSet<TimeSlot> TimeSlots { get; set; }
+    public DbSet<Appointment> Appointments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,11 +21,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.ApplyConfiguration(new RefreshTokenMapping());
         modelBuilder.ApplyConfiguration(new PatientMapping());
         modelBuilder.ApplyConfiguration(new ClinicianMapping());
+        modelBuilder.ApplyConfiguration(new TimeSlotMapping());
+        modelBuilder.ApplyConfiguration(new AppointmentMapping());
 
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Patient>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Clinician>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<TimeSlot>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Appointment>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

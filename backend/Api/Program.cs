@@ -13,6 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 using Core.Application.Options;
 using Microsoft.AspNetCore.Identity;
 
+
+// Enable legacy DateTime handling for Npgsql (required for non-UTC DateTime values)
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Options
@@ -136,3 +140,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expose Program class for integration tests
+public partial class Program { }

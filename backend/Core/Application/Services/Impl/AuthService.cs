@@ -22,80 +22,28 @@ public class AuthService(
     public async Task<AuthResponse> Register(RegisterUserRequest request, CancellationToken cancellationToken = default)
     {
         var savedUser = await userService.Register(request, cancellationToken);
-        
-        var token = jwtTokenGenerator.GenerateToken(savedUser.Id, savedUser.Email);
-        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(savedUser.Id, savedUser.Email);
-
-        var refreshToken = new RefreshToken
-        {
-            Token = refreshTokenString,
-            UserId = savedUser.Id,
-            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
-        };
-
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        var (token, refreshTokenString) = await GenerateTokensAsync(savedUser.Id, savedUser.Email, savedUser.Role, cancellationToken);
         return new AuthResponse(savedUser, token, refreshTokenString);
     }
 
     public async Task<AuthResponse> RegisterPatient(RegisterPatientRequest request, CancellationToken cancellationToken = default)
     {
         var savedPatient = await patientService.Register(request, cancellationToken);
-        
-        var token = jwtTokenGenerator.GenerateToken(savedPatient.User.Id, savedPatient.User.Email);
-        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(savedPatient.User.Id, savedPatient.User.Email);
-
-        var refreshToken = new RefreshToken
-        {
-            Token = refreshTokenString,
-            UserId = savedPatient.User.Id,
-            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
-        };
-
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        var (token, refreshTokenString) = await GenerateTokensAsync(savedPatient.User.Id, savedPatient.User.Email, savedPatient.User.Role, cancellationToken);
         return new AuthResponse(savedPatient.User, token, refreshTokenString);
     }
 
     public async Task<AuthResponse> RegisterClinician(RegisterClinicianRequest request, CancellationToken cancellationToken = default)
     {
         var savedClinician = await clinicianService.Register(request, cancellationToken);
-        
-        var token = jwtTokenGenerator.GenerateToken(savedClinician.User.Id, savedClinician.User.Email);
-        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(savedClinician.User.Id, savedClinician.User.Email);
-
-        var refreshToken = new RefreshToken
-        {
-            Token = refreshTokenString,
-            UserId = savedClinician.User.Id,
-            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
-        };
-
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        var (token, refreshTokenString) = await GenerateTokensAsync(savedClinician.User.Id, savedClinician.User.Email, savedClinician.User.Role, cancellationToken);
         return new AuthResponse(savedClinician.User, token, refreshTokenString);
     }
 
     public async Task<AuthResponse> Login(LoginRequest request, CancellationToken cancellationToken = default)
     {
         var validUser = await userService.Login(request, cancellationToken);
-        
-        var token = jwtTokenGenerator.GenerateToken(validUser.Id, validUser.Email);
-        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(validUser.Id, validUser.Email);
-        
-        var refreshToken = new RefreshToken
-        {
-            Token = refreshTokenString,
-            UserId = validUser.Id,
-            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
-        };
-        
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        
+        var (token, refreshTokenString) = await GenerateTokensAsync(validUser.Id, validUser.Email, validUser.Role, cancellationToken);
         return new AuthResponse(validUser, token, refreshTokenString);
     }
 
@@ -109,21 +57,41 @@ public class AuthService(
             throw new TokenNotValidException("Refresh token is not valid.");
         }
         
+        // Revoke the old refresh token
+        existingRefreshToken.Revoked = DateTimeOffset.UtcNow;
+        
         var user = await userService.GetByIdAsync(existingRefreshToken.UserId);
+        var (token, refreshTokenString) = await GenerateTokensAsync(user.Id, user.Email, user.Role, cancellationToken);
+        return new AuthResponse(user, token, refreshTokenString);
+    }
+
+    public async Task Logout(string refreshToken, CancellationToken cancellationToken)
+    {
+        var existingRefreshToken = await refreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
         
-        var newJwtToken = jwtTokenGenerator.GenerateToken(user.Id, user.Email);
-        var newRefreshTokenString = jwtTokenGenerator.GenerateRefreshToken(user.Id, user.Email);
-        
-        var newRefreshToken = new RefreshToken
+        if (existingRefreshToken is not null && existingRefreshToken.IsActive)
         {
-            Token = newRefreshTokenString,
-            UserId = user.Id,
-            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays)
+            existingRefreshToken.Revoked = DateTimeOffset.UtcNow;
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private async Task<(string Token, string RefreshToken)> GenerateTokensAsync(
+        Guid userId, string email, string role, CancellationToken cancellationToken)
+    {
+        var token = jwtTokenGenerator.GenerateToken(userId, email, role);
+        var refreshTokenString = jwtTokenGenerator.GenerateRefreshToken(userId, email);
+
+        var refreshToken = new RefreshToken
+        {
+            Token = refreshTokenString,
+            UserId = userId,
+            Expires = DateTimeOffset.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireHours)
         };
-        
-        await refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
+
+        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        
-        return new AuthResponse(user, newJwtToken, newRefreshTokenString);
+
+        return (token, refreshTokenString);
     }
 }

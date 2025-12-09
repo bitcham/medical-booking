@@ -10,4 +10,5 @@ public interface IAuthService
     Task<AuthResponse> RegisterClinician(RegisterClinicianRequest request, CancellationToken cancellationToken = default);
     Task<AuthResponse> Login(LoginRequest request, CancellationToken cancellationToken = default);
     Task<AuthResponse> RefreshToken(string refreshToken, CancellationToken cancellationToken);
+    Task Logout(string refreshToken, CancellationToken cancellationToken);
 }

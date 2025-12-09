@@ -9,6 +9,7 @@ public class PatientMapping : IEntityTypeConfiguration<Patient>
     public void Configure(EntityTypeBuilder<Patient> builder)
     {
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
         builder.Property(x => x.PhoneNumber)
             .HasMaxLength(20)

@@ -9,7 +9,7 @@ public class Patient : BaseEntity
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
 
-    public DateTime DateOfBirth { get; set; }
+    public DateOnly DateOfBirth { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
     
     public Address Address { get; set; } = null!;

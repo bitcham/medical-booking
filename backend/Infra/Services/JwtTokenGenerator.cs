@@ -13,16 +13,16 @@ public class JwtTokenGenerator(IOptions<JwtOptions> jwtOptions) : IJwtTokenGener
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
-    public string GenerateToken(Guid userId, string email)
+    public string GenerateToken(Guid userId, string email, string role)
     {
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim("role", "user")
+            new Claim("role", role)
         };
 
-        return GenerateJwtToken(claims, DateTime.Now.AddHours(_jwtOptions.ExpireHours));
+        return GenerateJwtToken(claims, DateTime.UtcNow.AddHours(_jwtOptions.ExpireHours));
     }
 
     public string GenerateRefreshToken(Guid userId, string email)

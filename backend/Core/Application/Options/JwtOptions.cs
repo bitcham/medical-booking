@@ -8,5 +8,5 @@ public class JwtOptions
     public string Issuer { get; set; } = string.Empty;
     public string Audience { get; set; } = string.Empty;
     public double ExpireHours { get; set; } = 1;
-    public double RefreshTokenExpireDays { get; set; } = 7;
+    public double RefreshTokenExpireHours { get; set; } = 24;
 }

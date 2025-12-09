@@ -97,6 +97,18 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         
         return Ok(response);
     }
+
+    [HttpPost(ApiEndpoints.Auth.Logout)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
+            return NoContent();
+        await authService.Logout(refreshToken, cancellationToken);
+        Response.Cookies.Delete("refreshToken");
+
+        return NoContent();
+    }
     
     
     
@@ -105,7 +117,7 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays),
+            Expires = DateTimeOffset.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireHours),
             SameSite = SameSiteMode.Strict,
             Secure = true // Ensure this is true in production (requires HTTPS)
         };
